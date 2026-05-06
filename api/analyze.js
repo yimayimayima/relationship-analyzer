@@ -18,8 +18,10 @@ module.exports = async function handler(req, res) {
     });
     const data = await response.json();
     const text = (data.content||[]).map(c=>c.text||'').join('');
+    console.log('RESULT:', text.substring(0, 500));
     res.status(200).json({ result: text });
   } catch(e) {
+    console.log('ERROR:', e.message);
     res.status(500).json({ error: e.message });
   }
 }

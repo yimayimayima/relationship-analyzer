@@ -57,7 +57,7 @@ body { background: var(--bg); color: var(--ink); font-family: 'DM Sans', sans-se
 .field input::placeholder, .field textarea::placeholder { color: var(--ink-faint); font-size: 13px; }
 .rel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .rel-full { grid-column: 1 / -1; }
-.error-msg { font-family: 'DM Mono', monospace; font-size: 11px; color: #B44; padding: 0.75rem 1rem; border: 1px solid rgba(180,68,68,0.25); border-radius: 4px; background: rgba(180,68,68,0.04); margin-bottom: 1rem; display: none; }
+.error-msg { font-family: 'DM Mono', monospace; font-size: 11px; color: #B44; padding: 0.75rem 1rem; border: 1px solid rgba(180,68,68,0.25); border-radius: 4px; background: rgba(180,68,68,0.04); margin-bottom: 1rem; display: none; word-break: break-all; }
 .submit-row { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
 .submit-btn { background: var(--mint-500); color: white; border: none; border-radius: 6px; padding: 0.875rem 2rem; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.15s; flex-shrink: 0; }
 .submit-btn:hover { background: var(--mint-400); }
@@ -178,7 +178,8 @@ footer { background: var(--white); border-top: 1px solid var(--border); padding:
 <footer>
   <span class="footer-brand">After Us</span>
   <span class="footer-note">A tool by Big Feijoa · 写作与社会学的交叉地带</span>
-</footer><script>
+</footer>
+<script>
 let currentType = 'cross';
 
 function setType(t) {
@@ -212,29 +213,16 @@ async function analyze() {
 
   const isCross = currentType === 'cross';
 
-  const systemPrompt = `You are a sociology analysis tool. Analyse the structural dynamics of a relationship that has ended. No advice, no moral judgment, no blame. Refer to the two people as "Person A" and "Person B". Write in clear, accessible English. Output must be pure JSON with no markdown.
+  const systemPrompt = `You are a sociology analysis tool. Analyse the structural dynamics of a relationship that has ended. No advice, no moral judgment, no blame. Refer to the two people as "Person A" and "Person B". Write in clear English. Output ONLY a raw JSON object with no markdown, no code blocks, no extra text before or after.
 
-Format:
-{
-  "dimensions":[
-    {"num":"01","en_title":"Cultural Capital","cn_title":"文化资本","cn":"English analysis, use \\n for paragraphs, 2-4 paragraphs, be specific.","en":"One Chinese insight sentence."},
-    {"num":"02","en_title":"Mobility Privilege","cn_title":"流动性特权","cn":"...","en":"..."},
-    {"num":"03","en_title":"The Gaze","cn_title":"凝视的方向","cn":"...","en":"..."},
-    {"num":"04","en_title":"Power Structure","cn_title":"权力结构","cn":"...","en":"..."},
-    {"num":"05","en_title":"Emotional Labour","cn_title":"情感劳动","cn":"...","en":"..."},
-    {"num":"06","en_title":"Narrative Weight","cn_title":"叙事重量","cn":"...","en":"..."}
-  ],
-  "summary_en":"One specific sentence capturing the structural essence.",
-  "summary_cn":"一句话中文总结，直接有力。",
-  "question":"One English sentence then one Chinese sentence asking what the person already knew but never had words for."
-}`;
+The JSON must have this exact structure:
+{"dimensions":[{"num":"01","en_title":"Cultural Capital","cn_title":"文化资本","cn":"2-3 sentences of English analysis","en":"One Chinese sentence"},{"num":"02","en_title":"Mobility Privilege","cn_title":"流动性特权","cn":"...","en":"..."},{"num":"03","en_title":"The Gaze","cn_title":"凝视的方向","cn":"...","en":"..."},{"num":"04","en_title":"Power Structure","cn_title":"权力结构","cn":"...","en":"..."},{"num":"05","en_title":"Emotional Labour","cn_title":"情感劳动","cn":"...","en":"..."},{"num":"06","en_title":"Narrative Weight","cn_title":"叙事重量","cn":"...","en":"..."}],"summary_en":"One sentence.","summary_cn":"一句话。","question":"One English sentence. One Chinese sentence."}`;
 
-  const userPrompt = `Analyse this ended relationship:
-Person A: born ${her.year}, from ${her.origin}. Background: ${her.background||'not provided'}. ${her.job||''}.
-Person B: born ${him.year}, from ${him.origin}. Background: ${him.background||'not provided'}. ${him.job||''}.
-How they met: ${rel.met||'not provided'}. Ended: ${rel.ended||'not specified'}.
-${rel.extra?'Context: '+rel.extra:''}
-Type: ${isCross?'Cross-cultural — focus on nationality, passport privilege, cultural capital asymmetry':'Same country — focus on rural/urban divide, class mobility, geographic trajectory'}`;
+  const userPrompt = `Person A: born ${her.year}, from ${her.origin}. ${her.background||''}. ${her.job||''}.
+Person B: born ${him.year}, from ${him.origin}. ${him.background||''}. ${him.job||''}.
+Met: ${rel.met||'unknown'}. Ended: ${rel.ended||'unknown'}.
+${rel.extra||''}
+Type: ${isCross?'Cross-cultural':'Same country'}`;
 
   show('loading-view');
 
@@ -245,14 +233,12 @@ Type: ${isCross?'Cross-cultural — focus on nationality, passport privilege, cu
       body: JSON.stringify({ systemPrompt, prompt: userPrompt })
     });
     const data = await resp.json();
-    const raw = data.result || '';
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
+    const raw = (data.result || '').replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(raw);
     renderResult(parsed, her, him);
   } catch(e) {
     show('form-view');
-    const errEl = document.getElementById('error-msg');
-    errEl.textContent = 'Analysis failed. Please try again.';
+    errEl.textContent = 'Error: ' + e.message;
     errEl.style.display = 'block';
   }
 }
@@ -263,19 +249,18 @@ function renderResult(data, her, him) {
 
   let dimsHtml = '';
   (data.dimensions||[]).forEach(d => {
-    const paras = (d.cn||'').split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('');
-    dimsHtml += `
-      <div class="dimension">
-        <div class="dim-head">
-          <span class="dim-index">${d.num}</span>
-          <span class="dim-title-en">${d.en_title}</span>
-          <span class="dim-title-cn">${d.cn_title}</span>
-        </div>
-        <div class="dim-body">
-          <div class="dim-main">${paras}</div>
-          <div class="dim-aside"><span class="dim-aside-label">洞察 · Insight</span>${d.en||''}</div>
-        </div>
-      </div>`;
+    const paras = (d.cn||'').split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('') || `<p>${d.cn}</p>`;
+    dimsHtml += `<div class="dimension">
+      <div class="dim-head">
+        <span class="dim-index">${d.num}</span>
+        <span class="dim-title-en">${d.en_title}</span>
+        <span class="dim-title-cn">${d.cn_title}</span>
+      </div>
+      <div class="dim-body">
+        <div class="dim-main">${paras}</div>
+        <div class="dim-aside"><span class="dim-aside-label">洞察 · Insight</span>${d.en||''}</div>
+      </div>
+    </div>`;
   });
 
   document.getElementById('result-view').innerHTML = `

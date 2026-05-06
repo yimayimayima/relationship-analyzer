@@ -25,3 +25,6 @@ module.exports = async function handler(req, res) {
     res.status(500).json({ error: e.message });
   }
 }
+module.exports = async function handler(req, res) {
+  console.log('body:', JSON.stringify(req.body).substring(0, 100));
+  if (req.method !== 'POST') return res.status(405).end();

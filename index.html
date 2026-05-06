@@ -567,4 +567,537 @@ function resetForm() {
 }
 </script>
 </body>
+</html>.card-title { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mid); }
+.card-title-cn { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-faint); margin-left: auto; }
+.card-body { padding: 1.5rem; }
+.type-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.type-btn { padding: 0.875rem 1rem; border: 1px solid var(--border-mid); border-radius: 6px; background: var(--white); cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 400; color: var(--ink-light); text-align: left; transition: all 0.15s; line-height: 1.3; }
+.type-btn:hover { border-color: var(--mint-300); color: var(--ink); }
+.type-btn.active { border-color: var(--mint-400); background: var(--mint-50); color: var(--ink); }
+.type-btn .sub { display: block; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-faint); margin-top: 3px; letter-spacing: 0.04em; }
+.type-btn.active .sub { color: var(--mint-400); }
+.persons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 540px) { .persons-grid { grid-template-columns: 1fr; } .type-toggle { grid-template-columns: 1fr; } .rel-grid { grid-template-columns: 1fr !important; } }
+.person-col { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.person-header { background: var(--mint-50); padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-mid); }
+.person-body { padding: 1rem; }
+.field { margin-bottom: 1rem; }
+.field:last-child { margin-bottom: 0; }
+.field label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); display: block; margin-bottom: 5px; }
+.field input, .field textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink); padding: 8px 10px; outline: none; transition: border-color 0.15s; }
+.field textarea { resize: none; height: 76px; line-height: 1.5; }
+.field input:focus, .field textarea:focus { border-color: var(--mint-300); background: var(--white); }
+.field input::placeholder, .field textarea::placeholder { color: var(--ink-faint); font-size: 13px; }
+.rel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.rel-full { grid-column: 1 / -1; }
+.error-msg { font-family: 'DM Mono', monospace; font-size: 11px; color: #B44; padding: 0.75rem 1rem; border: 1px solid rgba(180,68,68,0.25); border-radius: 4px; background: rgba(180,68,68,0.04); margin-bottom: 1rem; display: none; word-break: break-all; }
+.submit-row { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.submit-btn { background: var(--mint-500); color: white; border: none; border-radius: 6px; padding: 0.875rem 2rem; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.15s; flex-shrink: 0; }
+.submit-btn:hover { background: var(--mint-400); }
+.submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.submit-note { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-faint); line-height: 1.7; }
+#loading-view { text-align: center; padding: 5rem 0; }
+.loading-ring { width: 40px; height: 40px; border: 2px solid var(--mint-100); border-top-color: var(--mint-400); border-radius: 50%; animation: spin 0.9s linear infinite; margin: 0 auto 1.5rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); }
+#result-view { animation: fadeUp 0.4s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+.report-header { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 1.75rem; margin-bottom: 1.5rem; display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 1rem; }
+.report-type { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mint-400); margin-bottom: 0.5rem; }
+.report-title { font-size: clamp(18px, 3vw, 24px); font-weight: 400; color: var(--ink); margin-bottom: 0.25rem; }
+.report-subtitle { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-faint); }
+.report-badge { background: var(--mint-100); border: 1px solid var(--mint-200); border-radius: 4px; padding: 0.5rem 0.875rem; text-align: center; flex-shrink: 0; }
+.badge-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mint-400); display: block; margin-bottom: 2px; }
+.badge-value { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--ink-mid); }
+.dimension { background: var(--white); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+.dim-head { background: var(--mint-50); border-bottom: 1px solid var(--border); padding: 0.875rem 1.5rem; display: flex; align-items: center; gap: 1rem; }
+.dim-index { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: var(--mint-400); min-width: 24px; }
+.dim-title-en { font-size: 14px; font-weight: 500; color: var(--ink); }
+.dim-title-cn { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-faint); margin-left: auto; }
+.dim-body { padding: 1.5rem; display: grid; grid-template-columns: 3fr 2fr; gap: 1.5rem; }
+@media (max-width: 560px) { .dim-body { grid-template-columns: 1fr; } .report-header { grid-template-columns: 1fr; } }
+.dim-main { font-size: 14px; line-height: 1.85; color: var(--ink-mid); }
+.dim-main p { margin-bottom: 0.75rem; }
+.dim-main p:last-child { margin-bottom: 0; }
+.dim-aside { background: var(--mint-50); border: 1px solid var(--mint-100); border-radius: 6px; padding: 1rem; font-family: 'DM Mono', monospace; font-size: 11px; line-height: 1.7; color: var(--ink-light); align-self: start; }
+.dim-aside-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mint-400); margin-bottom: 0.4rem; display: block; }
+.summary-card { background: var(--ink); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; }
+.summary-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mint-400); margin-bottom: 1rem; }
+.summary-text { font-size: clamp(16px, 2.5vw, 20px); font-weight: 300; line-height: 1.6; color: white; margin-bottom: 0.75rem; }
+.summary-cn { font-family: 'DM Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.6; }
+.question-card { background: var(--white); border: 1px solid var(--mint-200); border-left: 3px solid var(--mint-400); border-radius: 0 8px 8px 0; padding: 1.5rem; margin: 1.5rem 0; }
+.question-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mint-400); margin-bottom: 0.75rem; }
+.question-text { font-size: 15px; line-height: 1.75; color: var(--ink); font-weight: 300; }
+.reset-row { text-align: center; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+.reset-btn { background: none; border: 1px solid var(--border-mid); border-radius: 6px; padding: 0.75rem 1.5rem; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink-light); cursor: pointer; transition: all 0.15s; }
+.reset-btn:hover { border-color: var(--mint-300); color: var(--ink); }
+footer { background: var(--white); border-top: 1px solid var(--border); padding: 1.25rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+.footer-brand { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; color: var(--ink-mid); }
+.footer-note { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-faint); text-align: right; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="topbar-brand">After Us · Structural Report</span>
+  <span class="topbar-id">Sociology Framework · v1.0</span>
+</div>
+<header class="site-header">
+  <div class="report-label">Relationship Analysis Tool</div>
+  <h1 class="site-title">After Us:<br><strong>What the Structure Reveals</strong></h1>
+  <p class="site-tagline">When a relationship ends, we ask "what went wrong?" This tool asks a different question — <em>what was the structure?</em></p>
+  <p class="site-tagline-cn">分手之后，我们用社会学看清两个人之间发生了什么。</p>
+</header>
+<div class="disclaimer">
+  <span>No judgment</span><span>No advice</span><span>No blame</span><span>Just structure</span>
+</div>
+<main class="container">
+  <div id="form-view">
+    <div class="form-card">
+      <div class="card-header"><div class="card-num">0</div><span class="card-title">Relationship Type</span><span class="card-title-cn">关系类型</span></div>
+      <div class="card-body">
+        <div class="type-toggle">
+          <button class="type-btn active" data-type="cross" onclick="setType('cross')">Cross-cultural<span class="sub">Different countries / 跨国</span></button>
+          <button class="type-btn" data-type="same" onclick="setType('same')">Same country<span class="sub">Same culture / 同国</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="form-card">
+      <div class="card-header"><div class="card-num">1</div><span class="card-title">Two People</span><span class="card-title-cn">两个人</span></div>
+      <div class="card-body">
+        <div class="persons-grid">
+          <div class="person-col">
+            <div class="person-header">Person A / 她</div>
+            <div class="person-body">
+              <div class="field"><label>Birth Year</label><input type="text" id="her-year" placeholder="e.g. 1995"></div>
+              <div class="field"><label>Nationality · Origin</label><input type="text" id="her-origin" placeholder="e.g. Chengdu, China"></div>
+              <div class="field"><label>Background</label><textarea id="her-background" placeholder="Family structure, economic background..."></textarea></div>
+              <div class="field"><label>Education · Occupation</label><input type="text" id="her-job" placeholder="e.g. Designer, bachelor's"></div>
+            </div>
+          </div>
+          <div class="person-col">
+            <div class="person-header">Person B / 他</div>
+            <div class="person-body">
+              <div class="field"><label>Birth Year</label><input type="text" id="him-year" placeholder="e.g. 1988"></div>
+              <div class="field"><label>Nationality · Origin</label><input type="text" id="him-origin" placeholder="e.g. Paris, France"></div>
+              <div class="field"><label>Background</label><textarea id="him-background" placeholder="Family structure, economic background..."></textarea></div>
+              <div class="field"><label>Education · Occupation</label><input type="text" id="him-job" placeholder="e.g. Engineer, master's"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-card">
+      <div class="card-header"><div class="card-num">2</div><span class="card-title">The Relationship</span><span class="card-title-cn">这段关系</span></div>
+      <div class="card-body">
+        <div class="rel-grid">
+          <div class="field"><label>How & When You Met</label><input type="text" id="how-met" placeholder="e.g. Met through friends, 2019"></div>
+          <div class="field"><label>When It Ended</label><input type="text" id="how-ended" placeholder="e.g. Separated 2022"></div>
+          <div class="field rel-full"><label>Additional Notes (optional)</label><textarea id="extra" placeholder="Anything else that might matter..." style="height:60px"></textarea></div>
+        </div>
+      </div>
+    </div>
+    <div id="error-msg" class="error-msg"></div>
+    <div class="submit-row">
+      <button class="submit-btn" onclick="analyze()">Generate Structural Report</button>
+      <div class="submit-note">Bourdieu · Bauman · Urry<br>Hochschild · McAdams</div>
+    </div>
+  </div>
+  <div id="loading-view" style="display:none">
+    <div class="loading-ring"></div>
+    <div class="loading-label">Generating Report · 正在生成报告</div>
+  </div>
+  <div id="result-view" style="display:none"></div>
+</main>
+<footer>
+  <span class="footer-brand">After Us</span>
+  <span class="footer-note">A tool by Big Feijoa · 写作与社会学的交叉地带</span>
+</footer>
+<script>
+let currentType = 'cross';
+
+function setType(t) {
+  currentType = t;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === t));
+}
+
+function show(id) {
+  ['form-view','loading-view','result-view'].forEach(v => {
+    document.getElementById(v).style.display = v === id ? 'block' : 'none';
+  });
+}
+
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+async function analyze() {
+  const her = { year: val('her-year'), origin: val('her-origin'), background: val('her-background'), job: val('her-job') };
+  const him = { year: val('him-year'), origin: val('him-origin'), background: val('him-background'), job: val('him-job') };
+  const rel = { met: val('how-met'), ended: val('how-ended'), extra: val('extra') };
+
+  const errEl = document.getElementById('error-msg');
+  if (!her.year || !him.year || !her.origin || !him.origin) {
+    errEl.textContent = 'Please fill in birth year and origin for both people.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const isCross = currentType === 'cross';
+
+  const systemPrompt = `You are a sociology analysis tool. Analyse the structural dynamics of a relationship that has ended. No advice, no moral judgment, no blame. Refer to the two people as "Person A" and "Person B". Write in clear English. Output ONLY a raw JSON object with no markdown, no code blocks, no extra text before or after.
+
+The JSON must have this exact structure:
+{"dimensions":[{"num":"01","en_title":"Cultural Capital","cn_title":"文化资本","cn":"2-3 sentences of English analysis","en":"One Chinese sentence"},{"num":"02","en_title":"Mobility Privilege","cn_title":"流动性特权","cn":"...","en":"..."},{"num":"03","en_title":"The Gaze","cn_title":"凝视的方向","cn":"...","en":"..."},{"num":"04","en_title":"Power Structure","cn_title":"权力结构","cn":"...","en":"..."},{"num":"05","en_title":"Emotional Labour","cn_title":"情感劳动","cn":"...","en":"..."},{"num":"06","en_title":"Narrative Weight","cn_title":"叙事重量","cn":"...","en":"..."}],"summary_en":"One sentence.","summary_cn":"一句话。","question":"One English sentence. One Chinese sentence."}`;
+
+  const userPrompt = `Person A: born ${her.year}, from ${her.origin}. ${her.background||''}. ${her.job||''}.
+Person B: born ${him.year}, from ${him.origin}. ${him.background||''}. ${him.job||''}.
+Met: ${rel.met||'unknown'}. Ended: ${rel.ended||'unknown'}.
+${rel.extra||''}
+Type: ${isCross?'Cross-cultural':'Same country'}`;
+
+  show('loading-view');
+
+  try {
+    const resp = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ systemPrompt, prompt: userPrompt })
+    });
+    const data = await resp.json();
+    const raw = (data.result || '').replace(/```json|```/g, '').trim();
+    errEl.textContent = 'RAW: ' + raw.substring(0, 400);
+    errEl.style.display = 'block';
+    show('form-view');
+  } catch(e) {
+    show('form-view');
+    errEl.textContent = 'Error: ' + e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+function renderResult(data, her, him) {
+  const dateStr = new Date().toLocaleDateString('en-NZ', {year:'numeric',month:'long',day:'numeric'});
+  const reportId = 'RPT-' + Date.now().toString(36).toUpperCase().slice(-6);
+
+  let dimsHtml = '';
+  (data.dimensions||[]).forEach(d => {
+    const paras = (d.cn||'').split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('') || `<p>${d.cn}</p>`;
+    dimsHtml += `<div class="dimension">
+      <div class="dim-head">
+        <span class="dim-index">${d.num}</span>
+        <span class="dim-title-en">${d.en_title}</span>
+        <span class="dim-title-cn">${d.cn_title}</span>
+      </div>
+      <div class="dim-body">
+        <div class="dim-main">${paras}</div>
+        <div class="dim-aside"><span class="dim-aside-label">洞察 · Insight</span>${d.en||''}</div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('result-view').innerHTML = `
+    <div class="report-header">
+      <div>
+        <div class="report-type">Structural Analysis Report</div>
+        <div class="report-title">${her.origin} × ${him.origin}</div>
+        <div class="report-subtitle">${dateStr} · ${reportId}</div>
+      </div>
+      <div class="report-badge">
+        <span class="badge-label">Framework</span>
+        <span class="badge-value">6 dimensions</span>
+      </div>
+    </div>
+    ${dimsHtml}
+    <div class="summary-card">
+      <div class="summary-label">Structural Essence · 结构本质</div>
+      <div class="summary-text">${data.summary_en||''}</div>
+      <div class="summary-cn">${data.summary_cn||''}</div>
+    </div>
+    <div class="question-card">
+      <div class="question-label">A Final Question · 一个问题</div>
+      <div class="question-text">${data.question||''}</div>
+    </div>
+    <div class="reset-row">
+      <button class="reset-btn" onclick="resetForm()">← Analyse another relationship</button>
+    </div>`;
+
+  show('result-view');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+  show('form-view');
+  document.getElementById('result-view').innerHTML = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>.card-title { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mid); }
+.card-title-cn { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-faint); margin-left: auto; }
+.card-body { padding: 1.5rem; }
+.type-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.type-btn { padding: 0.875rem 1rem; border: 1px solid var(--border-mid); border-radius: 6px; background: var(--white); cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 400; color: var(--ink-light); text-align: left; transition: all 0.15s; line-height: 1.3; }
+.type-btn:hover { border-color: var(--mint-300); color: var(--ink); }
+.type-btn.active { border-color: var(--mint-400); background: var(--mint-50); color: var(--ink); }
+.type-btn .sub { display: block; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-faint); margin-top: 3px; letter-spacing: 0.04em; }
+.type-btn.active .sub { color: var(--mint-400); }
+.persons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 540px) { .persons-grid { grid-template-columns: 1fr; } .type-toggle { grid-template-columns: 1fr; } .rel-grid { grid-template-columns: 1fr !important; } }
+.person-col { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.person-header { background: var(--mint-50); padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-mid); }
+.person-body { padding: 1rem; }
+.field { margin-bottom: 1rem; }
+.field:last-child { margin-bottom: 0; }
+.field label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); display: block; margin-bottom: 5px; }
+.field input, .field textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink); padding: 8px 10px; outline: none; transition: border-color 0.15s; }
+.field textarea { resize: none; height: 76px; line-height: 1.5; }
+.field input:focus, .field textarea:focus { border-color: var(--mint-300); background: var(--white); }
+.field input::placeholder, .field textarea::placeholder { color: var(--ink-faint); font-size: 13px; }
+.rel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.rel-full { grid-column: 1 / -1; }
+.error-msg { font-family: 'DM Mono', monospace; font-size: 11px; color: #B44; padding: 0.75rem 1rem; border: 1px solid rgba(180,68,68,0.25); border-radius: 4px; background: rgba(180,68,68,0.04); margin-bottom: 1rem; display: none; word-break: break-all; }
+.submit-row { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.submit-btn { background: var(--mint-500); color: white; border: none; border-radius: 6px; padding: 0.875rem 2rem; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.15s; flex-shrink: 0; }
+.submit-btn:hover { background: var(--mint-400); }
+.submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.submit-note { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-faint); line-height: 1.7; }
+#loading-view { text-align: center; padding: 5rem 0; }
+.loading-ring { width: 40px; height: 40px; border: 2px solid var(--mint-100); border-top-color: var(--mint-400); border-radius: 50%; animation: spin 0.9s linear infinite; margin: 0 auto 1.5rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); }
+#result-view { animation: fadeUp 0.4s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+.report-header { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 1.75rem; margin-bottom: 1.5rem; display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 1rem; }
+.report-type { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mint-400); margin-bottom: 0.5rem; }
+.report-title { font-size: clamp(18px, 3vw, 24px); font-weight: 400; color: var(--ink); margin-bottom: 0.25rem; }
+.report-subtitle { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-faint); }
+.report-badge { background: var(--mint-100); border: 1px solid var(--mint-200); border-radius: 4px; padding: 0.5rem 0.875rem; text-align: center; flex-shrink: 0; }
+.badge-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mint-400); display: block; margin-bottom: 2px; }
+.badge-value { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--ink-mid); }
+.dimension { background: var(--white); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+.dim-head { background: var(--mint-50); border-bottom: 1px solid var(--border); padding: 0.875rem 1.5rem; display: flex; align-items: center; gap: 1rem; }
+.dim-index { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: var(--mint-400); min-width: 24px; }
+.dim-title-en { font-size: 14px; font-weight: 500; color: var(--ink); }
+.dim-title-cn { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-faint); margin-left: auto; }
+.dim-body { padding: 1.5rem; display: grid; grid-template-columns: 3fr 2fr; gap: 1.5rem; }
+@media (max-width: 560px) { .dim-body { grid-template-columns: 1fr; } .report-header { grid-template-columns: 1fr; } }
+.dim-main { font-size: 14px; line-height: 1.85; color: var(--ink-mid); }
+.dim-main p { margin-bottom: 0.75rem; }
+.dim-main p:last-child { margin-bottom: 0; }
+.dim-aside { background: var(--mint-50); border: 1px solid var(--mint-100); border-radius: 6px; padding: 1rem; font-family: 'DM Mono', monospace; font-size: 11px; line-height: 1.7; color: var(--ink-light); align-self: start; }
+.dim-aside-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mint-400); margin-bottom: 0.4rem; display: block; }
+.summary-card { background: var(--ink); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; }
+.summary-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mint-400); margin-bottom: 1rem; }
+.summary-text { font-size: clamp(16px, 2.5vw, 20px); font-weight: 300; line-height: 1.6; color: white; margin-bottom: 0.75rem; }
+.summary-cn { font-family: 'DM Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.6; }
+.question-card { background: var(--white); border: 1px solid var(--mint-200); border-left: 3px solid var(--mint-400); border-radius: 0 8px 8px 0; padding: 1.5rem; margin: 1.5rem 0; }
+.question-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mint-400); margin-bottom: 0.75rem; }
+.question-text { font-size: 15px; line-height: 1.75; color: var(--ink); font-weight: 300; }
+.reset-row { text-align: center; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+.reset-btn { background: none; border: 1px solid var(--border-mid); border-radius: 6px; padding: 0.75rem 1.5rem; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink-light); cursor: pointer; transition: all 0.15s; }
+.reset-btn:hover { border-color: var(--mint-300); color: var(--ink); }
+footer { background: var(--white); border-top: 1px solid var(--border); padding: 1.25rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+.footer-brand { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; color: var(--ink-mid); }
+.footer-note { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-faint); text-align: right; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="topbar-brand">After Us · Structural Report</span>
+  <span class="topbar-id">Sociology Framework · v1.0</span>
+</div>
+<header class="site-header">
+  <div class="report-label">Relationship Analysis Tool</div>
+  <h1 class="site-title">After Us:<br><strong>What the Structure Reveals</strong></h1>
+  <p class="site-tagline">When a relationship ends, we ask "what went wrong?" This tool asks a different question — <em>what was the structure?</em></p>
+  <p class="site-tagline-cn">分手之后，我们用社会学看清两个人之间发生了什么。</p>
+</header>
+<div class="disclaimer">
+  <span>No judgment</span><span>No advice</span><span>No blame</span><span>Just structure</span>
+</div>
+<main class="container">
+  <div id="form-view">
+    <div class="form-card">
+      <div class="card-header"><div class="card-num">0</div><span class="card-title">Relationship Type</span><span class="card-title-cn">关系类型</span></div>
+      <div class="card-body">
+        <div class="type-toggle">
+          <button class="type-btn active" data-type="cross" onclick="setType('cross')">Cross-cultural<span class="sub">Different countries / 跨国</span></button>
+          <button class="type-btn" data-type="same" onclick="setType('same')">Same country<span class="sub">Same culture / 同国</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="form-card">
+      <div class="card-header"><div class="card-num">1</div><span class="card-title">Two People</span><span class="card-title-cn">两个人</span></div>
+      <div class="card-body">
+        <div class="persons-grid">
+          <div class="person-col">
+            <div class="person-header">Person A / 她</div>
+            <div class="person-body">
+              <div class="field"><label>Birth Year</label><input type="text" id="her-year" placeholder="e.g. 1995"></div>
+              <div class="field"><label>Nationality · Origin</label><input type="text" id="her-origin" placeholder="e.g. Chengdu, China"></div>
+              <div class="field"><label>Background</label><textarea id="her-background" placeholder="Family structure, economic background..."></textarea></div>
+              <div class="field"><label>Education · Occupation</label><input type="text" id="her-job" placeholder="e.g. Designer, bachelor's"></div>
+            </div>
+          </div>
+          <div class="person-col">
+            <div class="person-header">Person B / 他</div>
+            <div class="person-body">
+              <div class="field"><label>Birth Year</label><input type="text" id="him-year" placeholder="e.g. 1988"></div>
+              <div class="field"><label>Nationality · Origin</label><input type="text" id="him-origin" placeholder="e.g. Paris, France"></div>
+              <div class="field"><label>Background</label><textarea id="him-background" placeholder="Family structure, economic background..."></textarea></div>
+              <div class="field"><label>Education · Occupation</label><input type="text" id="him-job" placeholder="e.g. Engineer, master's"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-card">
+      <div class="card-header"><div class="card-num">2</div><span class="card-title">The Relationship</span><span class="card-title-cn">这段关系</span></div>
+      <div class="card-body">
+        <div class="rel-grid">
+          <div class="field"><label>How & When You Met</label><input type="text" id="how-met" placeholder="e.g. Met through friends, 2019"></div>
+          <div class="field"><label>When It Ended</label><input type="text" id="how-ended" placeholder="e.g. Separated 2022"></div>
+          <div class="field rel-full"><label>Additional Notes (optional)</label><textarea id="extra" placeholder="Anything else that might matter..." style="height:60px"></textarea></div>
+        </div>
+      </div>
+    </div>
+    <div id="error-msg" class="error-msg"></div>
+    <div class="submit-row">
+      <button class="submit-btn" onclick="analyze()">Generate Structural Report</button>
+      <div class="submit-note">Bourdieu · Bauman · Urry<br>Hochschild · McAdams</div>
+    </div>
+  </div>
+  <div id="loading-view" style="display:none">
+    <div class="loading-ring"></div>
+    <div class="loading-label">Generating Report · 正在生成报告</div>
+  </div>
+  <div id="result-view" style="display:none"></div>
+</main>
+<footer>
+  <span class="footer-brand">After Us</span>
+  <span class="footer-note">A tool by Big Feijoa · 写作与社会学的交叉地带</span>
+</footer>
+<script>
+let currentType = 'cross';
+
+function setType(t) {
+  currentType = t;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === t));
+}
+
+function show(id) {
+  ['form-view','loading-view','result-view'].forEach(v => {
+    document.getElementById(v).style.display = v === id ? 'block' : 'none';
+  });
+}
+
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+async function analyze() {
+  const her = { year: val('her-year'), origin: val('her-origin'), background: val('her-background'), job: val('her-job') };
+  const him = { year: val('him-year'), origin: val('him-origin'), background: val('him-background'), job: val('him-job') };
+  const rel = { met: val('how-met'), ended: val('how-ended'), extra: val('extra') };
+
+  const errEl = document.getElementById('error-msg');
+  if (!her.year || !him.year || !her.origin || !him.origin) {
+    errEl.textContent = 'Please fill in birth year and origin for both people.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const isCross = currentType === 'cross';
+
+  const systemPrompt = `You are a sociology analysis tool. Analyse the structural dynamics of a relationship that has ended. No advice, no moral judgment, no blame. Refer to the two people as "Person A" and "Person B". Write in clear English. Output ONLY a raw JSON object with no markdown, no code blocks, no extra text before or after.
+
+The JSON must have this exact structure:
+{"dimensions":[{"num":"01","en_title":"Cultural Capital","cn_title":"文化资本","cn":"2-3 sentences of English analysis","en":"One Chinese sentence"},{"num":"02","en_title":"Mobility Privilege","cn_title":"流动性特权","cn":"...","en":"..."},{"num":"03","en_title":"The Gaze","cn_title":"凝视的方向","cn":"...","en":"..."},{"num":"04","en_title":"Power Structure","cn_title":"权力结构","cn":"...","en":"..."},{"num":"05","en_title":"Emotional Labour","cn_title":"情感劳动","cn":"...","en":"..."},{"num":"06","en_title":"Narrative Weight","cn_title":"叙事重量","cn":"...","en":"..."}],"summary_en":"One sentence.","summary_cn":"一句话。","question":"One English sentence. One Chinese sentence."}`;
+
+  const userPrompt = `Person A: born ${her.year}, from ${her.origin}. ${her.background||''}. ${her.job||''}.
+Person B: born ${him.year}, from ${him.origin}. ${him.background||''}. ${him.job||''}.
+Met: ${rel.met||'unknown'}. Ended: ${rel.ended||'unknown'}.
+${rel.extra||''}
+Type: ${isCross?'Cross-cultural':'Same country'}`;
+
+  show('loading-view');
+
+  try {
+    const resp = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ systemPrompt, prompt: userPrompt })
+    });
+    const data = await resp.json();
+    const raw = (data.result || '').replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(raw);
+    renderResult(parsed, her, him);
+  } catch(e) {
+    show('form-view');
+    errEl.textContent = 'Error: ' + e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+function renderResult(data, her, him) {
+  const dateStr = new Date().toLocaleDateString('en-NZ', {year:'numeric',month:'long',day:'numeric'});
+  const reportId = 'RPT-' + Date.now().toString(36).toUpperCase().slice(-6);
+
+  let dimsHtml = '';
+  (data.dimensions||[]).forEach(d => {
+    const paras = (d.cn||'').split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('') || `<p>${d.cn}</p>`;
+    dimsHtml += `<div class="dimension">
+      <div class="dim-head">
+        <span class="dim-index">${d.num}</span>
+        <span class="dim-title-en">${d.en_title}</span>
+        <span class="dim-title-cn">${d.cn_title}</span>
+      </div>
+      <div class="dim-body">
+        <div class="dim-main">${paras}</div>
+        <div class="dim-aside"><span class="dim-aside-label">洞察 · Insight</span>${d.en||''}</div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('result-view').innerHTML = `
+    <div class="report-header">
+      <div>
+        <div class="report-type">Structural Analysis Report</div>
+        <div class="report-title">${her.origin} × ${him.origin}</div>
+        <div class="report-subtitle">${dateStr} · ${reportId}</div>
+      </div>
+      <div class="report-badge">
+        <span class="badge-label">Framework</span>
+        <span class="badge-value">6 dimensions</span>
+      </div>
+    </div>
+    ${dimsHtml}
+    <div class="summary-card">
+      <div class="summary-label">Structural Essence · 结构本质</div>
+      <div class="summary-text">${data.summary_en||''}</div>
+      <div class="summary-cn">${data.summary_cn||''}</div>
+    </div>
+    <div class="question-card">
+      <div class="question-label">A Final Question · 一个问题</div>
+      <div class="question-text">${data.question||''}</div>
+    </div>
+    <div class="reset-row">
+      <button class="reset-btn" onclick="resetForm()">← Analyse another relationship</button>
+    </div>`;
+
+  show('result-view');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+  show('form-view');
+  document.getElementById('result-view').innerHTML = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
 </html>

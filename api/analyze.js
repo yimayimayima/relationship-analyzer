@@ -18,13 +18,8 @@ module.exports = async function handler(req, res) {
     });
     const data = await response.json();
     const text = (data.content||[]).map(c=>c.text||'').join('');
-    console.log('result:', text.substring(0, 300));
     res.status(200).json({ result: text });
   } catch(e) {
-    console.log('error:', e.message);
     res.status(500).json({ error: e.message });
   }
 }
-module.exports = async function handler(req, res) {
-  console.log('body:', JSON.stringify(req.body).substring(0, 100));
-  if (req.method !== 'POST') return res.status(405).end();

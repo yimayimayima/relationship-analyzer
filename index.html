@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>关系结构分析 — Big Feijoa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F7F5F0; --bg-card: #FFFFFF; --bg-secondary: #F0EDE6;
+    --text-primary: #1A1916; --text-secondary: #5C5A54; --text-tertiary: #9C9A94;
+    --border: rgba(26,25,22,0.12); --border-mid: rgba(26,25,22,0.22); --border-strong: rgba(26,25,22,0.4);
+    --accent: #1A1916;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111110; --bg-card: #1C1C1A; --bg-secondary: #242422;
+      --text-primary: #F0EDE6; --text-secondary: #A0998E; --text-tertiary: #5C5A54;
+      --border: rgba(240,237,230,0.1); --border-mid: rgba(240,237,230,0.2); --border-strong: rgba(240,237,230,0.35);
+      --accent: #F0EDE6;
+    }
+  }
+  html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+  body { font-family: 'IBM Plex Mono', monospace; background: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 0; }
+  .site-header { padding: 1.5rem 2rem; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .site-logo { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 400; color: var(--text-primary); text-decoration: none; letter-spacing: 0.02em; }
+  .site-tagline { font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.08em; }
+  .container { max-width: 680px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+  .page-header { margin-bottom: 3rem; }
+  .page-tag { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 0.75rem; }
+  .page-title { font-family: 'Playfair Display', serif; font-size: clamp(28px, 5vw, 40px); font-weight: 400; line-height: 1.15; color: var(--text-primary); margin-bottom: 1rem; }
+  .page-title em { font-style: italic; }
+  .page-desc { font-size: 13px; line-height: 1.8; color: var(--text-secondary); border-left: 2px solid var(--border-mid); padding-left: 1rem; }
+  .page-desc .en { display: block; margin-top: 0.4rem; color: var(--text-tertiary); font-style: italic; font-size: 12px; }
+  .type-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 2.5rem; }
+  .type-btn { padding: 1rem 1.25rem; border: 0.5px solid var(--border-mid); background: var(--bg-card); border-radius: 10px; cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-secondary); text-align: left; transition: all 0.15s; }
+  .type-btn:hover { border-color: var(--border-strong); color: var(--text-primary); }
+  .type-btn.active { border-color: var(--accent); color: var(--text-primary); background: var(--bg-secondary); }
+  .type-btn .btn-label { font-size: 13px; font-weight: 500; display: block; margin-bottom: 3px; }
+  .type-btn .btn-sub { font-size: 11px; color: var(--text-tertiary); font-style: italic; }
+  .section { margin-bottom: 2rem; }
+  .section-header { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 0.5px solid var(--border); }
+  .section-num { font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.1em; }
+  .section-title { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-secondary); }
+  .person-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { .person-grid { grid-template-columns: 1fr; } .type-selector { grid-template-columns: 1fr; } .shared-grid { grid-template-columns: 1fr; } }
+  .person-card { border: 0.5px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg-card); }
+  .person-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 1rem; }
+  .field { margin-bottom: 0.875rem; }
+  .field:last-child { margin-bottom: 0; }
+  .field label { font-size: 11px; color: var(--text-tertiary); display: block; margin-bottom: 5px; letter-spacing: 0.04em; }
+  .field input, .field textarea, .field select { width: 100%; font-family: 'IBM Plex Mono', monospace; font-size: 12px; background: var(--bg-secondary); border: 0.5px solid var(--border); border-radius: 8px; color: var(--text-primary); padding: 9px 12px; transition: border-color 0.15s; -webkit-appearance: none; }
+  .field textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+  .field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--border-strong); }
+  .field input::placeholder, .field textarea::placeholder { color: var(--text-tertiary); font-style: italic; }
+  .shared-section { border: 0.5px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg-card); }
+  .shared-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .analyze-btn { width: 100%; padding: 1rem; border: 0.5px solid var(--accent); background: var(--accent); color: var(--bg); border-radius: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; cursor: pointer; letter-spacing: 0.08em; margin-bottom: 1.5rem; margin-top: 0.5rem; transition: opacity 0.15s; }
+  .analyze-btn:hover { opacity: 0.82; }
+  .analyze-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .framework-note { font-size: 11px; color: var(--text-tertiary); text-align: center; line-height: 1.7; }
+  .framework-note em { font-style: italic; display: block; margin-top: 2px; }
+  .loading { text-align: center; padding: 5rem 0; }
+  .loading-dots { margin-bottom: 1rem; }
+  .loading-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--text-tertiary); margin: 0 3px; animation: pulse 1.4s ease-in-out infinite; }
+  .loading-dot:nth-child(2) { animation-delay: 0.25s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.5s; }
+  @keyframes pulse { 0%, 80%, 100% { opacity: 0.2; transform: scale(0.85); } 40% { opacity: 1; transform: scale(1); } }
+  .loading-text { font-size: 12px; color: var(--text-tertiary); letter-spacing: 0.08em; }
+  .error { font-size: 12px; color: #B44; padding: 0.75rem 1rem; border: 0.5px solid rgba(180,68,68,0.3); border-radius: 8px; margin-bottom: 1rem; display: none; }
+  .result { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .result-meta { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border); }
+  .result-tag { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 0.5rem; }
+  .result-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 400; color: var(--text-primary); margin-bottom: 0.25rem; }
+  .result-date { font-size: 11px; color: var(--text-tertiary); }
+  .dimension { margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 0.5px solid var(--border); }
+  .dimension:last-of-type { border-bottom: none; }
+  .dim-header { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .dim-num { font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.08em; min-width: 22px; }
+  .dim-title-cn { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+  .dim-title-en { font-size: 11px; color: var(--text-tertiary); font-style: italic; margin-left: auto; }
+  .dim-content { font-size: 13px; line-height: 1.9; color: var(--text-secondary); }
+  .dim-content p { margin-bottom: 0.875rem; }
+  .dim-content p:last-child { margin-bottom: 0; }
+  .dim-en { font-size: 12px; color: var(--text-tertiary); font-style: italic; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 0.5px solid var(--border); }
+  .summary-block { background: var(--bg-card); border: 0.5px solid var(--border-mid); border-radius: 12px; padding: 1.5rem 1.75rem; margin: 2rem 0; }
+  .summary-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 0.75rem; }
+  .summary-cn { font-family: 'Playfair Display', serif; font-size: 17px; line-height: 1.7; color: var(--text-primary); margin-bottom: 0.75rem; }
+  .summary-en { font-size: 12px; line-height: 1.7; color: var(--text-secondary); font-style: italic; }
+  .question-block { border-left: 2px solid var(--border-strong); padding-left: 1.25rem; margin: 2rem 0; }
+  .question-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 0.5rem; }
+  .question-text { font-size: 13px; line-height: 1.8; color: var(--text-primary); }
+  .reset-btn { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-tertiary); background: none; border: none; cursor: pointer; padding: 0; margin-top: 2rem; letter-spacing: 0.04em; transition: color 0.15s; }
+  .reset-btn:hover { color: var(--text-primary); }
+  .site-footer { margin-top: 4rem; padding: 1.5rem 2rem; border-top: 0.5px solid var(--border); font-size: 11px; color: var(--text-tertiary); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+  .footer-credit { font-style: italic; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="#" class="site-logo">Big Feijoa</a>
+  <span class="site-tagline">关系结构分析 / Structure Analysis</span>
+</header>
+
+<main class="container">
+
+  <div id="form-view">
+    <div class="page-header">
+      <div class="page-tag">A Sociology Tool</div>
+      <h1 class="page-title">用社会学看清<br><em>一段感情的形状</em></h1>
+      <div class="page-desc">
+        不评判好坏，不给建议。只让你看清楚它是什么。
+        <span class="en">No judgment. No advice. Just structure.</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">00</span>
+        <span class="section-title">关系类型 / Relationship Type</span>
+      </div>
+      <div class="type-selector">
+        <button class="type-btn active" data-type="cross" onclick="setType('cross')">
+          <span class="btn-label">跨国 / 跨文化</span>
+          <span class="btn-sub">Cross-cultural relationship</span>
+        </button>
+        <button class="type-btn" data-type="same" onclick="setType('same')">
+          <span class="btn-label">同国 / 同文化</span>
+          <span class="btn-sub">Same country relationship</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <span class="section-title">两个人 / Two People</span>
+      </div>
+      <div class="person-grid">
+        <div class="person-card">
+          <div class="person-label">她 / Her</div>
+          <div class="field"><label>出生年份</label><input type="text" id="her-year" placeholder="e.g. 1993"></div>
+          <div class="field"><label>国籍 / 出生地</label><input type="text" id="her-origin" placeholder="e.g. 山东菏泽农村"></div>
+          <div class="field"><label>成长背景</label><textarea id="her-background" placeholder="家庭结构、经济状况、父母职业..."></textarea></div>
+          <div class="field"><label>教育 / 职业</label><input type="text" id="her-job" placeholder="e.g. 记者，硕士"></div>
+        </div>
+        <div class="person-card">
+          <div class="person-label">他 / Him</div>
+          <div class="field"><label>出生年份</label><input type="text" id="him-year" placeholder="e.g. 1981"></div>
+          <div class="field"><label>国籍 / 出生地</label><input type="text" id="him-origin" placeholder="e.g. 西班牙阿利坎特"></div>
+          <div class="field"><label>成长背景</label><textarea id="him-background" placeholder="家庭结构、经济状况、父母职业..."></textarea></div>
+          <div class="field"><label>教育 / 职业</label><input type="text" id="him-job" placeholder="e.g. 大学老师，哲学硕士"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <span class="section-title">这段关系 / The Relationship</span>
+      </div>
+      <div class="shared-section">
+        <div class="shared-grid">
+          <div class="field"><label>相识方式和时间</label><input type="text" id="how-met" placeholder="e.g. 2016年 Tinder 认识"></div>
+          <div class="field"><label>结束时间 / 现状</label><input type="text" id="how-ended" placeholder="e.g. 2021年分开 / 现在进行中"></div>
+        </div>
+        <div class="field" style="margin-top:8px"><label>补充说明（可选）</label><textarea id="extra" placeholder="任何你觉得重要的细节..." style="min-height:60px"></textarea></div>
+      </div>
+    </div>
+
+    <div id="error-msg" class="error"></div>
+
+    <button class="analyze-btn" onclick="analyze()">分析这段关系的结构 →</button>
+
+    <p class="framework-note">
+      基于布迪厄、Bauman、Urry、Hochschild、McAdams等社会学框架
+      <em>Built on Bourdieu · Bauman · Urry · Hochschild · McAdams</em>
+    </p>
+  </div>
+
+  <div id="loading-view" style="display:none">
+    <div class="loading">
+      <div class="loading-dots">
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+      </div>
+      <div class="loading-text">正在分析结构 / analyzing structure</div>
+    </div>
+  </div>
+
+  <div id="result-view" style="display:none"></div>
+
+</main>
+
+<footer class="site-footer">
+  <span>Big Feijoa © 2025</span>
+  <span class="footer-credit">用文字记录一个从广州出走的人，如何在另一个地方重新长出自己。</span>
+</footer>
+
+<script>
+  let currentType = 'cross';
+
+  function setType(t) {
+    currentType = t;
+    document.querySelectorAll('.type-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.type === t);
+    });
+  }
+
+  function show(id) {
+    ['form-view','loading-view','result-view'].forEach(v => {
+      document.getElementById(v).style.display = v === id ? 'block' : 'none';
+    });
+  }
+
+  function val(id) {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  }
+
+  async function analyze() {
+    const her = { year: val('her-year'), origin: val('her-origin'), background: val('her-background'), job: val('her-job') };
+    const him = { year: val('him-year'), origin: val('him-origin'), background: val('him-background'), job: val('him-job') };
+    const rel = { met: val('how-met'), ended: val('how-ended'), extra: val('extra') };
+
+    const errEl = document.getElementById('error-msg');
+    if (!her.year || !him.year || !her.origin || !him.origin) {
+      errEl.textContent = '请至少填写两个人的出生年份和出生地 / Please fill in birth year and origin for both people.';
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.style.display = 'none';
+
+    const isCross = currentType === 'cross';
+
+    const extraDim = isCross ? '' : `,
+    {"num": "07", "cn_title": "城乡经验与身体记忆", "en_title": "Rural/Urban Experience", "cn": "...", "en": "..."}`;
+
+    const systemPrompt = `你是一个严格基于社会学框架做结构分析的工具。只做分析，不给建议，不评判好坏。用"她"和"他"指代两个人，保持学术距离。
+输出格式必须严格是JSON，不输出任何其他内容，不加markdown代码块。
+JSON结构：
+{
+  "dimensions": [
+    {"num":"01","cn_title":"文化资本的对称性","en_title":"Cultural Capital","cn":"分析内容，用\\n分隔段落，2-4段","en":"One key insight in English"},
+    {"num":"02","cn_title":"流动性特权","en_title":"Mobility Privilege","cn":"...","en":"..."},
+    {"num":"03","cn_title":"凝视的方向","en_title":"The Gaze","cn":"...","en":"..."},
+    {"num":"04","cn_title":"权力结构","en_title":"Power Structure","cn":"...","en":"..."},
+    {"num":"05","cn_title":"情感劳动的分配","en_title":"Emotional Labour","cn":"...","en":"..."},
+    {"num":"06","cn_title":"叙事重量","en_title":"Narrative Weight","cn":"...","en":"..."}${extraDim}
+  ],
+  "summary_cn": "一句话中文总结这段关系的结构本质",
+  "summary_en": "One sentence English summary",
+  "question": "用中英双语提一个问题：这段分析里，有什么是你早就知道但从来没有用语言说清楚过的？"
+}`;
+
+    const userPrompt = `请分析这段关系：
+
+她：${her.year}年生，${her.origin}，成长背景：${her.background || '未提供'}，${her.job || '未提供职业'}
+他：${him.year}年生，${him.origin}，成长背景：${him.background || '未提供'}，${him.job || '未提供职业'}
+
+关系：${rel.met || '未提供相识方式'}，${rel.ended || '关系状态未知'}
+${rel.extra ? '补充：' + rel.extra : ''}
+
+关系类型：${isCross ? '跨国/跨文化，重点分析国籍、文化资本、流动性特权的差异' : '同国同文化，重点分析城乡差异、阶层流动、地理轨迹、身体记忆'}`;
+
+    show('loading-view');
+
+    try {
+      const resp = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemPrompt: systemPrompt,
+          prompt: userPrompt
+        })
+      });
+
+      const data = await resp.json();
+      const raw = data.result || '';
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
+      renderResult(parsed, her, him);
+
+    } catch(e) {
+      show('form-view');
+      const err = document.getElementById('error-msg');
+      err.textContent = '分析出错，请检查网络或稍后再试 / Analysis failed, please try again.';
+      err.style.display = 'block';
+    }
+  }
+
+  function renderResult(data, her, him) {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('zh-CN', { year:'numeric', month:'long', day:'numeric' });
+
+    let dimsHtml = '';
+    data.dimensions.forEach(d => {
+      const paras = d.cn.split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
+      dimsHtml += `
+        <div class="dimension">
+          <div class="dim-header">
+            <span class="dim-num">${d.num}</span>
+            <span class="dim-title-cn">${d.cn_title}</span>
+            <span class="dim-title-en">${d.en_title}</span>
+          </div>
+          <div class="dim-content">
+            ${paras}
+            <p class="dim-en">${d.en}</p>
+          </div>
+        </div>`;
+    });
+
+    const html = `
+      <div class="result">
+        <div class="result-meta">
+          <div class="result-tag">Structure Report / 结构报告</div>
+          <div class="result-title">${her.origin} × ${him.origin}</div>
+          <div class="result-date">${dateStr}</div>
+        </div>
+        ${dimsHtml}
+        <div class="summary-block">
+          <div class="summary-label">结构本质 / structural essence</div>
+          <div class="summary-cn">${data.summary_cn}</div>
+          <div class="summary-en">${data.summary_en}</div>
+        </div>
+        <div class="question-block">
+          <div class="question-label">一个问题 / a question</div>
+          <div class="question-text">${data.question}</div>
+        </div>
+        <button class="reset-btn" onclick="resetForm()">← 分析另一段关系 / analyze another</button>
+      </div>`;
+
+    document.getElementById('result-view').innerHTML = html;
+    show('result-view');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function resetForm() {
+    show('form-view');
+    document.getElementById('result-view').innerHTML = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>

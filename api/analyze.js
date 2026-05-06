@@ -18,7 +18,8 @@ module.exports = async function handler(req, res) {
     });
     const data = await response.json();
     const text = (data.content||[]).map(c=>c.text||'').join('');
-    res.status(200).json({ result: text, debug: text.substring(0, 200) });
+    console.log('RAW:', JSON.stringify(text.substring(0,300)));
+    res.status(200).json({ result: text });
   } catch(e) {
     res.status(500).json({ error: e.message });
   }

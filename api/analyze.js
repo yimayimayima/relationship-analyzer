@@ -3,10 +3,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { prompt, systemPrompt } = req.body;
-
   try {
-    const response = await fetch('https://api.deepseek.com/chat/completions', {
+    const { prompt, systemPrompt } = req.body;
+
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -22,11 +22,16 @@ export default async function handler(req, res) {
       })
     });
 
+    if (!response.ok) {
+      const err = await response.text();
+      return res.status(500).json({ error: err });
+    }
+
     const data = await response.json();
     const text = data.choices?.[0]?.message?.content || '';
-    res.status(200).json({ result: text });
+    return res.status(200).json({ result: text });
 
   } catch (e) {
-    res.status(500).json({ error: 'API call failed' });
+    return res.status(500).json({ error: e.message });
   }
 }

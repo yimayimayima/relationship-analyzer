@@ -234,9 +234,8 @@ Type: ${isCross?'Cross-cultural':'Same country'}`;
     });
     const data = await resp.json();
     const raw = (data.result || '').replace(/```json|```/g, '').trim();
-    errEl.textContent = 'RAW: ' + raw.substring(0, 400);
-    errEl.style.display = 'block';
-    show('form-view');
+    const parsed = JSON.parse(raw);
+    renderResult(parsed, her, him);
   } catch(e) {
     show('form-view');
     errEl.textContent = 'Error: ' + e.message;
@@ -250,7 +249,8 @@ function renderResult(data, her, him) {
 
   let dimsHtml = '';
   (data.dimensions||[]).forEach(d => {
-    const paras = (d.cn||'').split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('') || `<p>${d.cn}</p>`;
+    const content = d.en || d.cn || '';
+    const paras = content.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('') || `<p>${content}</p>`;
     dimsHtml += `<div class="dimension">
       <div class="dim-head">
         <span class="dim-index">${d.num}</span>
@@ -259,7 +259,7 @@ function renderResult(data, her, him) {
       </div>
       <div class="dim-body">
         <div class="dim-main">${paras}</div>
-        <div class="dim-aside"><span class="dim-aside-label">洞察 · Insight</span>${d.en||''}</div>
+        <div class="dim-aside"><span class="dim-aside-label">洞察 · Insight</span>${d.cn||''}</div>
       </div>
     </div>`;
   });
@@ -279,8 +279,8 @@ function renderResult(data, her, him) {
     ${dimsHtml}
     <div class="summary-card">
       <div class="summary-label">Structural Essence · 结构本质</div>
-      <div class="summary-text">${data.summary_en||''}</div>
-      <div class="summary-cn">${data.summary_cn||''}</div>
+      <div class="summary-text">${data.summary_en||data.summary_cn||''}</div>
+      <div class="summary-cn">${data.summary_cn||data.summary_en||''}</div>
     </div>
     <div class="question-card">
       <div class="question-label">A Final Question · 一个问题</div>
